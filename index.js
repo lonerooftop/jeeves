@@ -42,6 +42,7 @@ function Jeeves(width, height, lut, min, max) {
       this.gl.FLOAT,
       false, 0, 0);
   this.gl.drawArrays(this.gl.TRIANGLE_STRIP, 0, this.rectangleBuffer.numItems);
+  console.log("arrays drawn");
 }
 
 Jeeves.prototype._initGL = function (width, height) {
@@ -49,7 +50,7 @@ Jeeves.prototype._initGL = function (width, height) {
   document.body.appendChild(this.canvas);
   this.canvas.width = width;
   this.canvas.height = height;
-  this.gl = this.canvas.getContext("experimental-webgl");
+  this.gl = this.canvas.getContext("webgl");
   this.gl.viewportWidth = this.canvas.width;
   this.gl.viewportHeight = this.canvas.height;
 };
@@ -64,16 +65,18 @@ Jeeves.prototype._initShaders = function () {
   console.assert(this.gl.getProgramParameter(this.shaderProgram,
         this.gl.LINK_STATUS), "Could not initialise shaders");
   this.gl.useProgram(this.shaderProgram);
+  this.gl.enableVertexAttribArray(this.gl.getAttribLocation(this.shaderProgram,
+        "aVertexPosition"));
 };
 
 Jeeves.prototype._initBuffers = function () {
   this.rectangleBuffer = this.gl.createBuffer();
   this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.rectangleBuffer);
   var vertices = [
-    1.0, 1.0, 0.0,
-    -1.0, 1.0, 0.0,
-    1.0, -1.0, 0.0,
-    -1.0, -1.0, 0.0
+    1.0, 1.0, -1.0,
+    -1.0, 1.0, -1.0,
+    1.0, -1.0, -1.0,
+    -1.0, -1.0, -1.0
   ];
   this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(vertices),
       this.gl.STATIC_DRAW);
@@ -100,7 +103,7 @@ Jeeves.prototype._getFragmentShader = function() {
   var SHADERCODE =
     "precision mediump float;\n" +
     "void main(void) {\n" +
-    "    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n" +
+    "    gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);\n" +
     "}";
   var shader = this.gl.createShader(this.gl.FRAGMENT_SHADER);
   this.gl.shaderSource(shader, SHADERCODE);
