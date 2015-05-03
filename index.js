@@ -61,10 +61,9 @@ function Jeeves(width, height, lut, min, max) {
 
 Jeeves.prototype._initGL = function (width, height) {
   this.canvas = document.createElement("canvas");
-  document.body.appendChild(this.canvas);
   this.canvas.width = width;
   this.canvas.height = height;
-  this.gl = this.canvas.getContext("webgl");
+  this.gl = this.canvas.getContext("webgl", {preserveDrawingBuffer: true});
   this.gl.viewportWidth = this.canvas.width;
   this.gl.viewportHeight = this.canvas.height;
 };
@@ -151,12 +150,6 @@ Jeeves.prototype.getHeatmap = function (data, width, height) {
   var self = this;
   return new Promise(function (resolve, reject) {
     var resolver = function() {
-      var canvas = document.createElement("canvas");
-      canvas.width = 200;
-      canvas.height = 100;
-      canvas.getContext("2d").drawImage(self.lut, 0, 0, 200, 100);
-      resolve({url: canvas.toDataURL("image/png")});
-
       var heatmap = self.gl.createTexture();
       self.gl.bindTexture(self.gl.TEXTURE_2D, heatmap);
       self.gl.texImage2D(self.gl.TEXTURE_2D, 0, self.gl.ALPHA, width, height,
@@ -170,6 +163,7 @@ Jeeves.prototype.getHeatmap = function (data, width, height) {
       self.gl.texParameteri(
           self.gl.TEXTURE_2D, self.gl.TEXTURE_MAG_FILTER, self.gl.LINEAR);
       self._draw(heatmap);
+      resolve({url: self.canvas.toDataURL("image/png")});
     };
     if (self.lut.isLoaded) {
       resolver();
@@ -207,3 +201,6 @@ Jeeves.prototype._draw = function (heatmap) {
   console.log("arrays drawn");
 };
 
+
+window.module = window.module || {};
+module.exports = {Jeeves: Jeeves};
