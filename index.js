@@ -120,11 +120,14 @@ Jeeves.prototype._getFragmentShader = function() {
   var SHADERCODE =
     "precision mediump float;\n" +
     "varying vec2 pos;\n" +
+    "uniform int lutwidth;\n" +
     "uniform sampler2D lut;\n" +
     "uniform sampler2D heatmap;\n" +
 
     "void main(void) {\n" +
     "    float val = texture2D(heatmap, pos).a;" +
+    "    val = val * (1.0 - 1.0 / float(lutwidth)); " +
+    "    val = val + (0.5 / float(lutwidth));" +
     "    gl_FragColor = texture2D(lut, vec2(val, .5));\n" +
     "}";
   var shader = this.gl.createShader(this.gl.FRAGMENT_SHADER);
@@ -191,6 +194,8 @@ Jeeves.prototype._draw = function (heatmap) {
   this.gl.activeTexture(this.gl.TEXTURE0);
   this.gl.bindTexture(this.gl.TEXTURE_2D, this.luttexture);
   this.gl.uniform1i(this.gl.getUniformLocation(this.shaderProgram, "lut"), 0);
+  this.gl.uniform1i(this.gl.getUniformLocation(this.shaderProgram, "lutwidth"),
+      this.lut.width);
 
   this.gl.activeTexture(this.gl.TEXTURE1);
   this.gl.bindTexture(this.gl.TEXTURE_2D, heatmap);
