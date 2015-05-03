@@ -19,13 +19,6 @@
  */
 function Jeeves(width, height, lut, min, max) {
   var self = this;
-  this.lut = new Image();
-  this.lut.onload = function () {
-    console.assert(self.lut.height === 1, "lut height");
-    console.log("lut loaded");
-  };
-  this.lut.src = lut;
-
   this._initGL(width, height);
   console.assert(this.gl, "initGL failed");
   this._initShaders();
@@ -34,15 +27,27 @@ function Jeeves(width, height, lut, min, max) {
   this.gl.clearColor(0.0, 1.0, 0.0, 1.0);
   this.gl.enable(this.gl.DEPTH_TEST);
   this.gl.viewport(0, 0, this.gl.viewportWidth, this.gl.viewportHeight);
-  this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
-  this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.rectangleBuffer);
-  this.gl.vertexAttribPointer(
-      this.gl.getAttribLocation(this.shaderProgram, "aVertexPosition"),
-      this.rectangleBuffer.itemSize,
-      this.gl.FLOAT,
-      false, 0, 0);
-  this.gl.drawArrays(this.gl.TRIANGLE_STRIP, 0, this.rectangleBuffer.numItems);
-  console.log("arrays drawn");
+
+  this.lut = new Image();
+  this.luttexture = this.gl.createTexture();
+
+  this.lut.onload = function () {
+    self.lut.isLoaded = true;
+    console.assert(self.lut.height === 1, "lut height");
+    console.log("lut loaded");
+    self.gl.bindTexture(self.gl.TEXTURE_2D, self.luttexture);
+    self.gl.pixelStorei(self.gl.UNPACK_FLIP_Y_WEBGL, true);
+    self.gl.texImage2D(self.gl.TEXTURE_2D, 0, self.gl.RGBA, self.gl.RGBA,
+       self.gl.UNSIGNED_BYTE, self.lut);
+    self.gl.texParameteri(self.gl.TEXTURE_2D, self.gl.TEXTURE_MAG_FILTER,
+        self.gl.LINEAR);
+    self.gl.texParameteri(self.gl.TEXTURE_2D, self.gl.TEXTURE_MIN_FILTER,
+        self.gl.NEAREST);
+    self.gl.bindTexture(self.gl.TEXTURE_2D, null);
+    console.log("create image");
+  };
+  this.lut.src = lut;
+
 }
 
 Jeeves.prototype._initGL = function (width, height) {
@@ -85,6 +90,7 @@ Jeeves.prototype._initBuffers = function () {
 };
 
 
+
 Jeeves.prototype._getVertexShader = function() {
   var SHADERCODE =
     "attribute vec3 aVertexPosition;\n" +
@@ -106,9 +112,11 @@ Jeeves.prototype._getFragmentShader = function() {
   var SHADERCODE =
     "precision mediump float;\n" +
     "varying vec2 pos;\n" +
+    "uniform sampler2D lut;\n" +
+    "uniform sampler2D heatmap;\n" +
 
     "void main(void) {\n" +
-    "    gl_FragColor = vec4(pos.x, pos.y, 0.0, 1.0);\n" +
+    "    gl_FragColor = texture2D(lut, pos);\n" +
     "}";
   var shader = this.gl.createShader(this.gl.FRAGMENT_SHADER);
   this.gl.shaderSource(shader, SHADERCODE);
@@ -138,8 +146,9 @@ Jeeves.prototype.getHeatmap = function (data, width, height) {
       canvas.height = 100;
       canvas.getContext("2d").drawImage(self.lut, 0, 0, 200, 100);
       resolve({url: canvas.toDataURL("image/png")});
+      self._draw();
     };
-    if (self.lut.complete) {
+    if (self.lut.isLoaded) {
       resolver();
     } else {
       var oldfunction = self.lut.onload;
@@ -152,3 +161,19 @@ Jeeves.prototype.getHeatmap = function (data, width, height) {
     }
   });
 };
+
+Jeeves.prototype._draw = function () {
+  this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+  this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.rectangleBuffer);
+  this.gl.vertexAttribPointer(
+      this.gl.getAttribLocation(this.shaderProgram, "aVertexPosition"),
+      this.rectangleBuffer.itemSize,
+      this.gl.FLOAT,
+      false, 0, 0);
+  this.gl.activeTexture(this.gl.TEXTURE0);
+  this.gl.bindTexture(this.gl.TEXTURE_2D, this.luttexture);
+  this.gl.uniform1i(this.gl.getUniformLocation(this.shaderProgram, "lut"), 0);
+  this.gl.drawArrays(this.gl.TRIANGLE_STRIP, 0, this.rectangleBuffer.numItems);
+  console.log("arrays drawn");
+};
+
