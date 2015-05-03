@@ -88,8 +88,11 @@ Jeeves.prototype._initBuffers = function () {
 Jeeves.prototype._getVertexShader = function() {
   var SHADERCODE =
     "attribute vec3 aVertexPosition;\n" +
+    "varying vec2 pos;\n" +
+
     "void main(void) {\n" +
     "    gl_Position = vec4(aVertexPosition, 1.0);\n" +
+    "    pos = (vec2(aVertexPosition.x, -aVertexPosition.y) + 1.0) / 2.0;\n" +
     "}";
   var shader = this.gl.createShader(this.gl.VERTEX_SHADER);
   this.gl.shaderSource(shader, SHADERCODE);
@@ -102,8 +105,10 @@ Jeeves.prototype._getVertexShader = function() {
 Jeeves.prototype._getFragmentShader = function() {
   var SHADERCODE =
     "precision mediump float;\n" +
+    "varying vec2 pos;\n" +
+
     "void main(void) {\n" +
-    "    gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);\n" +
+    "    gl_FragColor = vec4(pos.x, pos.y, 0.0, 1.0);\n" +
     "}";
   var shader = this.gl.createShader(this.gl.FRAGMENT_SHADER);
   this.gl.shaderSource(shader, SHADERCODE);
