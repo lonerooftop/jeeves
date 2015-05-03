@@ -38,7 +38,6 @@ function Jeeves(width, height, lut, min, max) {
   this.lut.onload = function () {
     self.lut.isLoaded = true;
     console.assert(self.lut.height === 1, "lut height");
-    console.log("lut loaded");
     self.gl.bindTexture(self.gl.TEXTURE_2D, self.luttexture);
     self.gl.texImage2D(self.gl.TEXTURE_2D, 0, self.gl.RGBA, self.gl.RGBA,
        self.gl.UNSIGNED_BYTE, self.lut);
@@ -51,7 +50,6 @@ function Jeeves(width, height, lut, min, max) {
     self.gl.texParameteri(self.gl.TEXTURE_2D, self.gl.TEXTURE_MIN_FILTER,
         self.gl.NEAREST);
     self.gl.bindTexture(self.gl.TEXTURE_2D, null);
-    console.log("create image");
   };
   this.lut.src = lut;
 
@@ -203,7 +201,6 @@ Jeeves.prototype._draw = function (heatmap) {
       this.gl.getUniformLocation(this.shaderProgram, "heatmap"), 1);
 
   this.gl.drawArrays(this.gl.TRIANGLE_STRIP, 0, this.rectangleBuffer.numItems);
-  console.log("arrays drawn");
 };
 
 
