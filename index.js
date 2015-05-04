@@ -41,12 +41,24 @@ Jeeves.prototype.init = function () {
     lutImage.onload = function () {
       console.assert(lutImage.height === 1, "lut height");
       var canvas = document.createElement("canvas");
-      canvas.height = 1;
-      canvas.width = self.lutResolution;
+      canvas.height = lutImage.height;
+      canvas.width = lutImage.width;
       var context = canvas.getContext("2d");
       context.drawImage(lutImage, 0, 0, canvas.width, canvas.height);
       var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-      self.lut = new Uint32Array(imageData.data.buffer); // one pixel per element
+      var lutData = new Uint8ClampedArray(self.lutResolution * 4);
+      var i, c, pos, upper, lower, f;
+      for (i = 0; i < self.lutResolution; i++) {
+        pos = i / (self.lutResolution - 1) * (lutImage.width - 1);
+        lower = Math.floor(pos);
+        upper = Math.ceil(pos);
+        f = pos - lower;
+        for (c = 0; c < 4; c++) {
+          lutData[i * 4 + c] = (1 - f) * imageData.data[lower * 4 + c] +
+            f * (imageData.data[upper * 4 + c]);
+        }
+      }
+      self.lut = new Uint32Array(lutData.buffer); // one pixel per element
       resolve("ok");
     };
     lutImage.src = self.lutURL;
