@@ -8,11 +8,12 @@
 <script type="application/javascript" src="index.js"></script>
 <script type="application/javascript">
   var LUT = "data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAgAAAABCAYAAADjAO9DAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wUDDyQ7vlZrewAAAAxpVFh0Q29tbWVudAAAAAAAvK6ymQAAACJJREFUCNcFwUEBACAMACG6rYr/RbCsPU4AM3spvaRSdOgD0DIOsQBXEzQAAAAASUVORK5CYII="
-  var input = new Float32Array([0.0, 0.3, 0.6, 1.0]);
-  var jeeves = new Jeeves(512, 512, LUT, 0, 1);
-  jeeves.getHeatmap(input, 2, 2).then(function (result) {
+  var input = new Float64Array([0.0, 0.3, 0.6, 1.0]);
+  var jeeves = new Jeeves(512, 512, LUT, 512, 0, 1.0);
+  jeeves.init().then(function () {
+      var pngURL = jeeves.getHeatmap(input, 2, 2);
       var img = document.createElement("img");
-      img.src = result.url;
+      img.src = pngURL;
       document.getElementById("result").appendChild(img);
   });
 </script>
