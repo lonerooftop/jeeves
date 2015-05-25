@@ -120,4 +120,8 @@ Jeeves.prototype.getHeatmap = function (data, dataWidth, dataHeight) {
 
 
 window.module = window.module || {};
-module.exports = {Jeeves: Jeeves};
+module.exports = {Jeeves: Jeeves,
+  SIMPLELUT_URL: "data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAgAAAABCAYAA"
+  + "ADjAO9DAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3w"
+  + "UDDyQ7vlZrewAAAAxpVFh0Q29tbWVudAAAAAAAvK6ymQAAACJJREFUCNcFwUEBACAMACG6rYr"
+  + "/RbCsPU4AM3spvaRSdOgD0DIOsQBXEzQAAAAASUVORK5CYII="};
