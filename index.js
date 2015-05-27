@@ -118,8 +118,9 @@ Jeeves.prototype.getHeatmap = function (data, dataWidth, dataHeight) {
   return pngURL;
 };
 
-
-window.module = window.module || {};
+if (typeof window !== "undefined") {
+  window.module = window.module || {};
+}
 module.exports = {Jeeves: Jeeves,
   SIMPLELUT_URL: "data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAAgAAAABCAYAA"
   + "ADjAO9DAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3w"
