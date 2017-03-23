@@ -8,6 +8,14 @@
  *     });
  */
 
+//  Number.isInteger polyfill. See:
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger
+Number.isInteger = Number.isInteger || function(value) {
+  return typeof value === 'number' &&
+    isFinite(value) &&
+    Math.floor(value) === value;
+};
+
 /**
  * Creates a new Jeeves object
  * @constructor
@@ -20,6 +28,10 @@
  */
 function Jeeves(width, height, lutURL, lutResolution, min, max) {
   var self = this;
+  console.assert(Number.isInteger(width) && width > 0,
+          "Width must be a positive integer: " + width);
+  console.assert(Number.isInteger(height) && height > 0,
+          "Height must be a positive integer: " + height);
   self.width = width;
   self.height = height;
   self.min = min;
